@@ -2165,7 +2165,20 @@ def health():
 @app.route('/', methods=['GET'])
 def index():
     """Serve the main workflow builder HTML"""
-    return send_file('workflow_builder.html')
+    try:
+        # Try to find workflow_builder.html in frontend directories
+        possible_paths = [
+            'workflow_builder.html',
+            '../../../frontend/public/workflow_builder.html',
+            '../../../frontend/ui/workflow-react/public/workflow_builder.html'
+        ]
+        for path in possible_paths:
+            if os.path.exists(path):
+                return send_file(path)
+        # If not found, return a simple HTML response
+        return jsonify({'message': 'FlowGrid Trading Backend API running. Frontend not found.'}), 200
+    except Exception as e:
+        return jsonify({'message': 'FlowGrid Trading Backend API running', 'error': str(e)}), 200
 
 @app.route('/nvda_chart.png', methods=['GET'])
 def nvda_chart():
