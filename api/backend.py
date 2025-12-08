@@ -19,8 +19,10 @@ import subprocess
 import json
 import re
 from datetime import datetime, timedelta
-from backendapi.integrations.alpaca_fetch import fetch_bars_full
-from backendapi.workflows.workflow_engine import WorkflowEngine
+#from backendapi.integrations.alpaca_fetch import fetch_bars_full
+from integrations.alpaca_fetch import fetch_bars_full
+#from backendapi.workflows.workflow_engine import WorkflowEngine
+from workflows.workflow_engine import WorkflowEngine
 from typing import List, Dict, Any
 from math import floor
 import requests
@@ -30,7 +32,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import matplotlib.dates as mdates
 from io import BytesIO
-from backendapi.integrations.telegram_notifier import get_notifier, load_telegram_settings, save_telegram_settings
+#from backendapi.integrations.telegram_notifier import get_notifier, load_telegram_settings, save_telegram_settings
+from integrations.telegram_notifier import get_notifier, load_telegram_settings, save_telegram_settings
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for browser access
@@ -44,7 +47,7 @@ last_sent_signals = {}
 
 # Lightweight backtest manager (filesystem-backed) for local dev
 try:
-    from backendapi.backtest.backtest_manager import get_manager
+    from ..backtest.backtest_manager import get_manager
     backtest_manager = get_manager()
     print('✅ Backtest manager initialized')
 except Exception as _e:
@@ -1977,7 +1980,8 @@ def execute_backtest():
                 rsi_params = _block_params('rsi')
                 rsi_period = int(rsi_params.get('period', rsi_params.get('length', 14)))
                 if len(closes_so_far) >= rsi_period + 1:
-                    from backendapi.indicators.rsiIndicator import rsi
+                    #from backendapi.indicators.rsiIndicator import rsi
+                    from indicators.rsiIndicator import rsi
                     rsi_vals = rsi(closes_so_far, rsi_period)
                     if rsi_vals and rsi_vals[-1] is not None:
                         latest_data['rsi'] = rsi_vals[-1]
@@ -1990,7 +1994,8 @@ def execute_backtest():
                 signal = int(macd_params.get('signal', macd_params.get('signalPeriod', 9)))
                 min_required = max(fast, slow) + signal
                 if len(closes_so_far) >= min_required:
-                    from backendapi.indicators.macdIndicator import macd
+                    #from backendapi.indicators.macdIndicator import macd
+                    from indicators.macdIndicator import macd
                     macd_line, signal_line, histogram = macd(closes_so_far, fast, slow, signal)
                     if macd_line and macd_line[-1] is not None:
                         latest_data['macd'] = macd_line[-1]
@@ -2004,7 +2009,8 @@ def execute_backtest():
                 bb_period = int(bb_params.get('period', bb_params.get('length', 20)))
                 bb_std = float(bb_params.get('numStd', bb_params.get('std', 2)))
                 if len(closes_so_far) >= bb_period:
-                    from backendapi.indicators.bollingerBands import bollinger_bands
+                    #from backendapi.indicators.bollingerBands import bollinger_bands
+                    from indicators.bollingerBands import bollinger_bands
                     upper, middle, lower = bollinger_bands(closes_so_far, bb_period, bb_std)
                     if upper and upper[-1] is not None:
                         latest_data['bb_upper'] = upper[-1]
